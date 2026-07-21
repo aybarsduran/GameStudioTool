@@ -14,4 +14,5 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Build status
 
 - **Step 1 (done):** app shell — tokens, sidebar, Feedback Inbox placeholder
-- Step 2+: inbox table, drawer, a11y, stub pages, before/after case
+- **Step 2 (done):** mock feedback data, dense table, URL-driven filters
+- Step 3+: detail drawer, a11y, stub pages, before/after case

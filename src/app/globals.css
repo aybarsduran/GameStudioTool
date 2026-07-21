@@ -74,3 +74,56 @@ body {
 .skip-link:focus {
   transform: translateY(var(--space-4));
 }
+
+.severity-dot,
+.status-dot {
+  display: inline-block;
+  height: 0.5rem;
+  width: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+
+.severity-dot--critical {
+  background: #b42318;
+}
+
+.severity-dot--high {
+  background: #c4320a;
+}
+
+.severity-dot--medium {
+  background: #b54708;
+}
+
+.severity-dot--low {
+  background: #667085;
+}
+
+.status-dot--new {
+  background: #175cd3;
+}
+
+.status-dot--triaged {
+  background: #9a6700;
+}
+
+.status-dot--in_progress {
+  background: #0f766e;
+}
+
+.status-dot--done {
+  background: #087443;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
