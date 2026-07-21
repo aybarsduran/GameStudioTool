@@ -1,21 +1,28 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { DetailDrawer } from "@/components/detail-drawer";
 import { FilterBar } from "@/components/filter-bar";
 import { FeedbackTable } from "@/components/feedback-table";
-import { feedbackItems } from "@/lib/data/feedback";
+import { Toast, type ToastMessage } from "@/components/toast";
+import { feedbackItems as initialFeedbackItems } from "@/lib/data/feedback";
 import {
   filterFeedback,
   filtersToSearchParams,
   parseFilters,
+  statusLabels,
 } from "@/lib/filters";
-import type { FeedbackFilters } from "@/lib/types";
+import type { FeedbackFilters, FeedbackItem, Status } from "@/lib/types";
 
 export function FeedbackInbox() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const [items, setItems] = useState<FeedbackItem[]>(initialFeedbackItems);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastMessage | null>(null);
 
   const filters = useMemo(
     () => parseFilters(searchParams),
@@ -23,9 +30,14 @@ export function FeedbackInbox() {
   );
 
   const filteredItems = useMemo(
-    () => filterFeedback(feedbackItems, filters),
-    [filters],
+    () => filterFeedback(items, filters),
+    [filters, items],
   );
+
+  const selectedItem =
+    filteredItems.find((item) => item.id === selectedId) ??
+    items.find((item) => item.id === selectedId) ??
+    null;
 
   const updateFilters = useCallback(
     (next: FeedbackFilters) => {
@@ -38,12 +50,44 @@ export function FeedbackInbox() {
     [pathname, router],
   );
 
+  const showToast = useCallback((text: string) => {
+    setToast({ id: Date.now(), text });
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    setSelectedId(null);
+  }, []);
+
+  const handleStatusChange = useCallback(
+    (id: string, status: Status) => {
+      setItems((current) =>
+        current.map((item) => (item.id === id ? { ...item, status } : item)),
+      );
+      showToast(`Status updated to ${statusLabels[status]}`);
+    },
+    [showToast],
+  );
+
+  const handleAssigneeChange = useCallback(
+    (id: string, assignee: string | null) => {
+      setItems((current) =>
+        current.map((item) =>
+          item.id === id ? { ...item, assignee } : item,
+        ),
+      );
+      showToast(
+        assignee ? `Assigned to ${assignee}` : "Assignee cleared",
+      );
+    },
+    [showToast],
+  );
+
   return (
     <>
       <FilterBar
         filters={filters}
         resultCount={filteredItems.length}
-        totalCount={feedbackItems.length}
+        totalCount={items.length}
         onChange={updateFilters}
       />
 
@@ -59,10 +103,23 @@ export function FeedbackInbox() {
               </p>
             </div>
           ) : (
-            <FeedbackTable items={filteredItems} />
+            <FeedbackTable
+              items={filteredItems}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
           )}
         </div>
       </section>
+
+      <DetailDrawer
+        item={selectedItem}
+        onClose={closeDrawer}
+        onStatusChange={handleStatusChange}
+        onAssigneeChange={handleAssigneeChange}
+      />
+
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </>
   );
 }
