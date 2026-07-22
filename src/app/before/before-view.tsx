@@ -112,7 +112,7 @@ export default function BeforeView() {
               }}
             />
             <div>
-              <div style={{ color: "#666" }}>{item.title}</div>
+              <div style={{ color: "#666" }}>{item.title.en}</div>
               <div style={{ color: "#bbb", marginTop: "2px" }}>
                 {item.reporter} · {statusLabels[item.status]} ·{" "}
                 {platformLabels[item.platform]}

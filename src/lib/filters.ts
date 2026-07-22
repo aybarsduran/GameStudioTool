@@ -92,20 +92,29 @@ export function filterFeedback(
     }
     if (!query) return true;
 
-    const haystack = `${item.title} ${item.body}`.toLowerCase();
+    const haystack =
+      `${item.title.en} ${item.title.tr} ${item.body.en} ${item.body.tr}`.toLowerCase();
     return haystack.includes(query);
   });
 }
 
-export function formatAge(isoDate: string, now = Date.now()): string {
+export function formatAge(
+  isoDate: string,
+  now = Date.now(),
+  locale: "en" | "tr" = "en",
+): string {
   const diffMs = Math.max(0, now - new Date(isoDate).getTime());
   const minutes = Math.floor(diffMs / 60_000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 1) return locale === "tr" ? "şimdi" : "just now";
+  if (minutes < 60) {
+    return locale === "tr" ? `${minutes}dk` : `${minutes}m`;
+  }
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
+  if (hours < 24) {
+    return locale === "tr" ? `${hours}sa` : `${hours}h`;
+  }
   const days = Math.floor(hours / 24);
-  return `${days}d`;
+  return locale === "tr" ? `${days}g` : `${days}d`;
 }
 
 export function toggleInList<T extends string>(list: T[], value: T): T[] {

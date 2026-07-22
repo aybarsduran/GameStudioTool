@@ -1,7 +1,12 @@
+"use client";
+
 import { PageHeader } from "@/components/page-header";
 import { patchNotes } from "@/lib/data/patches";
+import { useLocale } from "@/lib/i18n/provider";
 
 export default function PatchesPage() {
+  const { t, locale } = useLocale();
+
   return (
     <main
       id="main-content"
@@ -9,9 +14,9 @@ export default function PatchesPage() {
       className="flex flex-1 flex-col outline-none"
     >
       <PageHeader
-        eyebrow="LiveOps"
-        title="Patch Notes"
-        description="Player-facing updates and draft notes synced from the current LiveOps week."
+        eyebrow={t.patches.eyebrow}
+        title={t.patches.title}
+        description={t.patches.description}
       />
 
       <section className="flex flex-1 flex-col gap-4 px-5 py-5 md:px-8">
@@ -38,13 +43,17 @@ export default function PatchesPage() {
                       : "border-accent/30 bg-accent-soft text-accent-ink",
                   ].join(" ")}
                 >
-                  {patch.status === "published" ? "Published" : "Draft"}
+                  {patch.status === "published"
+                    ? t.patches.published
+                    : t.patches.draft}
                 </span>
                 <time
                   dateTime={patch.publishedAt}
                   className="font-mono text-xs text-muted"
                 >
-                  {new Date(patch.publishedAt).toLocaleDateString()}
+                  {new Date(patch.publishedAt).toLocaleDateString(
+                    locale === "tr" ? "tr-TR" : "en-US",
+                  )}
                 </time>
               </div>
             </div>

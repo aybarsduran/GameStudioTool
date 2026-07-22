@@ -1,14 +1,19 @@
+"use client";
+
 import { Sidebar } from "@/components/sidebar";
+import { useLocale } from "@/lib/i18n/provider";
 
 export default function DeskLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { t } = useLocale();
+
   return (
     <>
       <a href="#main-content" className="skip-link">
-        Skip to main content
+        {t.brand.skipToMain}
       </a>
       <div className="flex min-h-screen flex-col md:flex-row">
         <Sidebar />

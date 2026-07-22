@@ -1,3 +1,7 @@
+"use client";
+
+import { useLocale } from "@/lib/i18n/provider";
+
 type EmptyStateProps = {
   title: string;
   description: string;
@@ -11,13 +15,15 @@ export function EmptyState({
   actionLabel,
   onAction,
 }: EmptyStateProps) {
+  const { t } = useLocale();
+
   return (
     <div
       className="flex flex-col items-center justify-center px-6 py-16 text-center"
       role="status"
     >
       <p className="font-mono text-[0.6875rem] font-medium uppercase tracking-[0.12em] text-accent">
-        No results
+        {t.inbox.emptyEyebrow}
       </p>
       <h2 className="mt-3 text-base font-semibold text-foreground">{title}</h2>
       <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">

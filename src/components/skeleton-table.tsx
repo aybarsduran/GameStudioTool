@@ -1,4 +1,9 @@
+"use client";
+
+import { useLocale } from "@/lib/i18n/provider";
+
 export function SkeletonTable() {
+  const { t } = useLocale();
   const rows = Array.from({ length: 8 }, (_, index) => index);
 
   return (
@@ -6,7 +11,7 @@ export function SkeletonTable() {
       className="overflow-hidden"
       aria-busy="true"
       aria-live="polite"
-      aria-label="Loading feedback inbox"
+      aria-label={t.inbox.loadingAria}
     >
       <div className="border-b border-border bg-surface-muted px-4 py-3">
         <div className="h-3 w-40 animate-pulse rounded bg-border" />

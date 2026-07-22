@@ -6,11 +6,16 @@ export type Severity = (typeof SEVERITIES)[number];
 export type Status = (typeof STATUSES)[number];
 export type Platform = (typeof PLATFORMS)[number];
 
+export type LocalizedText = {
+  en: string;
+  tr: string;
+};
+
 export type FeedbackItem = {
   id: string;
-  title: string;
-  body: string;
-  stepsToReproduce: string[];
+  title: LocalizedText;
+  body: LocalizedText;
+  stepsToReproduce: LocalizedText[];
   severity: Severity;
   status: Status;
   platform: Platform;

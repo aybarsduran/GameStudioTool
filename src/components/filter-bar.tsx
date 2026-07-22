@@ -1,12 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import {
-  platformLabels,
-  severityLabels,
-  statusLabels,
-  toggleInList,
-} from "@/lib/filters";
+import { toggleInList } from "@/lib/filters";
+import { useLocale } from "@/lib/i18n/provider";
 import {
   PLATFORMS,
   SEVERITIES,
@@ -61,6 +57,8 @@ export function FilterBar({
   totalCount,
   onChange,
 }: FilterBarProps) {
+  const { t, format } = useLocale();
+
   return (
     <div className="space-y-3 border-b border-border bg-surface px-5 py-4 md:px-8">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
@@ -69,7 +67,7 @@ export function FilterBar({
             htmlFor="feedback-search"
             className="text-xs font-medium text-muted"
           >
-            Search
+            {t.inbox.search}
           </label>
           <input
             id="feedback-search"
@@ -78,7 +76,7 @@ export function FilterBar({
             onChange={(event) =>
               onChange({ ...filters, q: event.target.value })
             }
-            placeholder="Title or description…"
+            placeholder={t.inbox.searchPlaceholder}
             className="mt-1 w-full rounded-[var(--radius-sm)] border border-border bg-surface-muted px-3 py-2 text-sm text-foreground placeholder:text-muted"
           />
         </div>
@@ -88,7 +86,7 @@ export function FilterBar({
             htmlFor="feedback-platform"
             className="text-xs font-medium text-muted"
           >
-            Platform
+            {t.inbox.platform}
           </label>
           <select
             id="feedback-platform"
@@ -101,10 +99,10 @@ export function FilterBar({
             }
             className="mt-1 w-full rounded-[var(--radius-sm)] border border-border bg-surface-muted px-3 py-2 text-sm text-foreground"
           >
-            <option value="all">All platforms</option>
+            <option value="all">{t.inbox.allPlatforms}</option>
             {PLATFORMS.map((platform) => (
               <option key={platform} value={platform}>
-                {platformLabels[platform]}
+                {t.platform[platform]}
               </option>
             ))}
           </select>
@@ -112,8 +110,12 @@ export function FilterBar({
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium text-muted">Status</p>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Status">
+        <p className="text-xs font-medium text-muted">{t.inbox.status}</p>
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label={t.inbox.status}
+        >
           {STATUSES.map((status: Status) => (
             <Chip
               key={status}
@@ -126,7 +128,7 @@ export function FilterBar({
                 })
               }
             >
-              {statusLabels[status]}
+              {t.status[status]}
             </Chip>
           ))}
         </div>
@@ -134,11 +136,11 @@ export function FilterBar({
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-muted">Severity</p>
+          <p className="text-xs font-medium text-muted">{t.inbox.severity}</p>
           <div
             className="flex flex-wrap gap-2"
             role="group"
-            aria-label="Severity"
+            aria-label={t.inbox.severity}
           >
             {SEVERITIES.map((severity: Severity) => (
               <Chip
@@ -152,14 +154,17 @@ export function FilterBar({
                   })
                 }
               >
-                {severityLabels[severity]}
+                {t.severity[severity]}
               </Chip>
             ))}
           </div>
         </div>
 
         <p className="font-mono text-xs text-muted" aria-live="polite">
-          {resultCount} of {totalCount} items
+          {format(t.inbox.resultCount, {
+            count: resultCount,
+            total: totalCount,
+          })}
         </p>
       </div>
     </div>

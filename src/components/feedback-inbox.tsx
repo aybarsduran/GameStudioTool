@@ -14,8 +14,9 @@ import {
   filterFeedback,
   filtersToSearchParams,
   parseFilters,
-  statusLabels,
 } from "@/lib/filters";
+import { useLocale } from "@/lib/i18n/provider";
+import { loadSettings } from "@/lib/settings";
 import type { FeedbackFilters, FeedbackItem, Status } from "@/lib/types";
 
 const INITIAL_LOAD_MS = 500;
@@ -24,17 +25,38 @@ export function FeedbackInbox() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { t, format } = useLocale();
 
   const [items, setItems] = useState<FeedbackItem[]>(initialFeedbackItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [pageSize, setPageSize] = useState(25);
   const returnFocusIdRef = useRef<string | null>(null);
+  const appliedDefaultPlatform = useRef(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsLoading(false), INITIAL_LOAD_MS);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const settings = loadSettings();
+    setPageSize(settings.pageSize);
+
+    if (appliedDefaultPlatform.current) return;
+    if (searchParams.toString().length > 0) {
+      appliedDefaultPlatform.current = true;
+      return;
+    }
+
+    appliedDefaultPlatform.current = true;
+    if (settings.defaultPlatform === "all") return;
+
+    router.replace(`${pathname}?platform=${settings.defaultPlatform}`, {
+      scroll: false,
+    });
+  }, [pathname, router, searchParams]);
 
   const filters = useMemo(
     () => parseFilters(searchParams),
@@ -44,6 +66,11 @@ export function FeedbackInbox() {
   const filteredItems = useMemo(
     () => filterFeedback(items, filters),
     [filters, items],
+  );
+
+  const visibleItems = useMemo(
+    () => filteredItems.slice(0, pageSize),
+    [filteredItems, pageSize],
   );
 
   const selectedItem =
@@ -96,9 +123,11 @@ export function FeedbackInbox() {
       setItems((current) =>
         current.map((item) => (item.id === id ? { ...item, status } : item)),
       );
-      showToast(`Status updated to ${statusLabels[status]}`);
+      showToast(
+        format(t.drawer.statusUpdated, { status: t.status[status] }),
+      );
     },
-    [showToast],
+    [format, showToast, t.drawer.statusUpdated, t.status],
   );
 
   const handleAssigneeChange = useCallback(
@@ -109,10 +138,12 @@ export function FeedbackInbox() {
         ),
       );
       showToast(
-        assignee ? `Assigned to ${assignee}` : "Assignee cleared",
+        assignee
+          ? format(t.drawer.assignedTo, { name: assignee })
+          : t.drawer.assigneeCleared,
       );
     },
-    [showToast],
+    [format, showToast, t.drawer.assignedTo, t.drawer.assigneeCleared],
   );
 
   return (
@@ -129,21 +160,21 @@ export function FeedbackInbox() {
         aria-labelledby="inbox-results-heading"
       >
         <h2 id="inbox-results-heading" className="sr-only">
-          Feedback results
+          {t.inbox.resultsHeading}
         </h2>
         <div className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface shadow-[var(--shadow-panel)]">
           {isLoading ? (
             <SkeletonTable />
           ) : filteredItems.length === 0 ? (
             <EmptyState
-              title="No feedback matches these filters"
-              description="Clear a chip or broaden search to see more playtest reports."
-              actionLabel="Clear filters"
+              title={t.inbox.emptyTitle}
+              description={t.inbox.emptyDescription}
+              actionLabel={t.inbox.clearFilters}
               onAction={clearFilters}
             />
           ) : (
             <FeedbackTable
-              items={filteredItems}
+              items={visibleItems}
               selectedId={selectedId}
               onSelect={handleSelect}
             />

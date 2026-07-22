@@ -26,6 +26,7 @@ Game teams triage playtest feedback in dense tables every day. A first-pass UI o
 - Detail drawer for triage (status + assignee) with toast confirmation
 - Skeleton loading, empty state with clear-filters action
 - Keyboard row navigation, drawer focus trap, Esc + focus restore
+- EN / TR UI language switcher (persisted in `localStorage`), including localized mock feedback copy
 - Shared design tokens (Figtree + IBM Plex Mono, teal accent, AA-minded contrast)
 
 ### Accessibility notes

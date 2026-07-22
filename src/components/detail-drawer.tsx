@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import {
-  platformLabels,
-  severityLabels,
-  statusLabels,
-} from "@/lib/filters";
 import { getFocusableElements } from "@/lib/focus";
+import { useLocale } from "@/lib/i18n/provider";
 import { STATUSES, type FeedbackItem, type Status } from "@/lib/types";
 
 export const ASSIGNEES = [
@@ -29,6 +25,7 @@ export function DetailDrawer({
   onStatusChange,
   onAssigneeChange,
 }: DetailDrawerProps) {
+  const { t, locale } = useLocale();
   const open = item !== null;
   const titleId = useId();
   const panelRef = useRef<HTMLElement>(null);
@@ -124,7 +121,7 @@ export function DetailDrawer({
                   id={titleId}
                   className="mt-1 text-lg font-semibold tracking-tight text-foreground"
                 >
-                  {active.title}
+                  {active.title[locale]}
                 </h2>
               </div>
               <button
@@ -133,7 +130,7 @@ export function DetailDrawer({
                 onClick={onClose}
                 className="rounded-[var(--radius-sm)] border border-border px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-surface-muted"
               >
-                Close
+                {t.drawer.close}
               </button>
             </header>
 
@@ -144,59 +141,65 @@ export function DetailDrawer({
                     className={`severity-dot severity-dot--${active.severity}`}
                     aria-hidden
                   />
-                  {severityLabels[active.severity]}
+                  {t.severity[active.severity]}
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-2.5 py-1 text-xs font-medium">
                   <span
                     className={`status-dot status-dot--${active.status}`}
                     aria-hidden
                   />
-                  {statusLabels[active.status]}
+                  {t.status[active.status]}
                 </span>
                 <span className="inline-flex items-center rounded-full border border-accent/30 bg-accent-soft px-2.5 py-1 font-mono text-xs font-medium text-accent-ink">
-                  Build {active.build}
+                  {t.drawer.build} {active.build}
                 </span>
                 <span className="inline-flex items-center rounded-full border border-border bg-surface-muted px-2.5 py-1 text-xs font-medium">
-                  {platformLabels[active.platform]}
+                  {t.platform[active.platform]}
                 </span>
               </div>
 
               <section>
                 <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
-                  Description
+                  {t.drawer.description}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-foreground">
-                  {active.body}
+                  {active.body[locale]}
                 </p>
               </section>
 
               <section>
                 <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
-                  Steps to reproduce
+                  {t.drawer.steps}
                 </h3>
                 <ol className="mt-2 list-decimal space-y-1.5 pl-4 text-sm leading-relaxed text-foreground">
                   {active.stepsToReproduce.map((step) => (
-                    <li key={step}>{step}</li>
+                    <li key={step.en}>{step[locale]}</li>
                   ))}
                 </ol>
               </section>
 
               <section className="grid gap-4 rounded-[var(--radius-md)] border border-border bg-surface-muted p-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-xs font-medium text-muted">Reporter</p>
+                  <p className="text-xs font-medium text-muted">
+                    {t.drawer.reporter}
+                  </p>
                   <p className="mt-1 text-sm font-medium">{active.reporter}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-muted">Created</p>
+                  <p className="text-xs font-medium text-muted">
+                    {t.drawer.created}
+                  </p>
                   <p className="mt-1 font-mono text-sm">
-                    {new Date(active.createdAt).toLocaleString()}
+                    {new Date(active.createdAt).toLocaleString(
+                      locale === "tr" ? "tr-TR" : "en-US",
+                    )}
                   </p>
                 </div>
               </section>
 
               <section className="space-y-4 border-t border-border pt-5">
                 <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
-                  Triage
+                  {t.drawer.triage}
                 </h3>
 
                 <div>
@@ -204,7 +207,7 @@ export function DetailDrawer({
                     htmlFor="feedback-status"
                     className="text-xs font-medium text-muted"
                   >
-                    Status
+                    {t.drawer.status}
                   </label>
                   <select
                     id="feedback-status"
@@ -216,7 +219,7 @@ export function DetailDrawer({
                   >
                     {STATUSES.map((status) => (
                       <option key={status} value={status}>
-                        {statusLabels[status]}
+                        {t.status[status]}
                       </option>
                     ))}
                   </select>
@@ -227,7 +230,7 @@ export function DetailDrawer({
                     htmlFor="feedback-assignee"
                     className="text-xs font-medium text-muted"
                   >
-                    Assignee
+                    {t.drawer.assignee}
                   </label>
                   <select
                     id="feedback-assignee"
@@ -240,7 +243,7 @@ export function DetailDrawer({
                     }
                     className="mt-1 w-full rounded-[var(--radius-sm)] border border-border bg-surface px-3 py-2 text-sm"
                   >
-                    <option value="">Unassigned</option>
+                    <option value="">{t.drawer.unassigned}</option>
                     {ASSIGNEES.map((name) => (
                       <option key={name} value={name}>
                         {name}

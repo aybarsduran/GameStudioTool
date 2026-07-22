@@ -5,12 +5,8 @@ import {
   useRef,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import {
-  formatAge,
-  platformLabels,
-  severityLabels,
-  statusLabels,
-} from "@/lib/filters";
+import { formatAge } from "@/lib/filters";
+import { useLocale } from "@/lib/i18n/provider";
 import type { FeedbackItem } from "@/lib/types";
 
 type FeedbackTableProps = {
@@ -24,6 +20,7 @@ export function FeedbackTable({
   selectedId,
   onSelect,
 }: FeedbackTableProps) {
+  const { t, locale } = useLocale();
   const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
 
   const focusRow = useCallback((id: string) => {
@@ -58,32 +55,29 @@ export function FeedbackTable({
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full border-collapse text-left text-sm">
-        <caption className="sr-only">
-          Playtest feedback inbox. Use arrow keys to move between rows, Enter
-          to open details.
-        </caption>
+        <caption className="sr-only">{t.inbox.tableCaption}</caption>
         <thead className="border-b border-border bg-surface-muted text-xs uppercase tracking-[0.06em] text-muted">
           <tr>
             <th scope="col" className="px-3 py-2.5 font-medium md:px-4">
-              Severity
+              {t.inbox.colSeverity}
             </th>
             <th scope="col" className="px-3 py-2.5 font-medium md:px-4">
-              Title
+              {t.inbox.colTitle}
             </th>
             <th scope="col" className="px-3 py-2.5 font-medium md:px-4">
-              Build
+              {t.inbox.colBuild}
             </th>
             <th scope="col" className="px-3 py-2.5 font-medium md:px-4">
-              Platform
+              {t.inbox.colPlatform}
             </th>
             <th scope="col" className="px-3 py-2.5 font-medium md:px-4">
-              Status
+              {t.inbox.colStatus}
             </th>
             <th scope="col" className="px-3 py-2.5 font-medium md:px-4">
-              Reporter
+              {t.inbox.colReporter}
             </th>
             <th scope="col" className="px-3 py-2.5 font-medium md:px-4">
-              Age
+              {t.inbox.colAge}
             </th>
           </tr>
         </thead>
@@ -117,20 +111,20 @@ export function FeedbackTable({
                       aria-hidden
                     />
                     <span className="font-medium">
-                      {severityLabels[item.severity]}
+                      {t.severity[item.severity]}
                     </span>
                   </span>
                 </td>
                 <td className="max-w-[18rem] px-3 py-2.5 md:max-w-[24rem] md:px-4">
                   <span className="line-clamp-2 font-medium text-foreground">
-                    {item.title}
+                    {item.title[locale]}
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs md:px-4">
                   {item.build}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 md:px-4">
-                  {platformLabels[item.platform]}
+                  {t.platform[item.platform]}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 md:px-4">
                   <span className="inline-flex items-center gap-1.5">
@@ -138,7 +132,7 @@ export function FeedbackTable({
                       className={`status-dot status-dot--${item.status}`}
                       aria-hidden
                     />
-                    <span>{statusLabels[item.status]}</span>
+                    <span>{t.status[item.status]}</span>
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 md:px-4">
@@ -146,7 +140,7 @@ export function FeedbackTable({
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs text-muted md:px-4">
                   <time dateTime={item.createdAt}>
-                    {formatAge(item.createdAt)}
+                    {formatAge(item.createdAt, Date.now(), locale)}
                   </time>
                 </td>
               </tr>
