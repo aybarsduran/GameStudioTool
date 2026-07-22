@@ -116,6 +116,22 @@ body {
   background: #087443;
 }
 
+.status-dot--build-live {
+  background: #087443;
+}
+
+.status-dot--build-candidate {
+  background: #0f766e;
+}
+
+.status-dot--build-internal {
+  background: #175cd3;
+}
+
+.status-dot--build-retired {
+  background: #667085;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

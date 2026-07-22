@@ -17,4 +17,5 @@ Open [http://localhost:3000](http://localhost:3000).
 - **Step 2 (done):** mock feedback data, dense table, URL-driven filters
 - **Step 3 (done):** detail drawer, status/assignee triage, toast feedback
 - **Step 4 (done):** skeleton loading, empty state, keyboard nav, focus trap
-- Step 5+: stub pages, before/after case
+- **Step 5 (done):** Builds, Patch Notes, and Settings stub pages
+- Step 6: before/after case + deploy prep

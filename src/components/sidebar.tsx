@@ -62,7 +62,7 @@ export function Sidebar() {
 
       <div className="hidden border-t border-border px-5 py-4 md:block">
         <p className="text-xs text-muted">Studio workspace</p>
-        <p className="mt-1 font-mono text-xs text-foreground">v0.1.0-shell</p>
+        <p className="mt-1 font-mono text-xs text-foreground">v0.1.0-stubs</p>
       </div>
     </aside>
   );
