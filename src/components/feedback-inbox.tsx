@@ -1,12 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DetailDrawer } from "@/components/detail-drawer";
+import { EmptyState } from "@/components/empty-state";
 import { FilterBar } from "@/components/filter-bar";
 import { FeedbackTable } from "@/components/feedback-table";
+import { SkeletonTable } from "@/components/skeleton-table";
 import { Toast, type ToastMessage } from "@/components/toast";
 import { feedbackItems as initialFeedbackItems } from "@/lib/data/feedback";
+import { focusElementBySelector } from "@/lib/focus";
 import {
   filterFeedback,
   filtersToSearchParams,
@@ -14,6 +17,8 @@ import {
   statusLabels,
 } from "@/lib/filters";
 import type { FeedbackFilters, FeedbackItem, Status } from "@/lib/types";
+
+const INITIAL_LOAD_MS = 500;
 
 export function FeedbackInbox() {
   const router = useRouter();
@@ -23,6 +28,13 @@ export function FeedbackInbox() {
   const [items, setItems] = useState<FeedbackItem[]>(initialFeedbackItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastMessage | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const returnFocusIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsLoading(false), INITIAL_LOAD_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const filters = useMemo(
     () => parseFilters(searchParams),
@@ -50,12 +62,33 @@ export function FeedbackInbox() {
     [pathname, router],
   );
 
+  const clearFilters = useCallback(() => {
+    updateFilters({
+      q: "",
+      status: [],
+      severity: [],
+      platform: "all",
+    });
+  }, [updateFilters]);
+
   const showToast = useCallback((text: string) => {
     setToast({ id: Date.now(), text });
   }, []);
 
+  const handleSelect = useCallback((id: string) => {
+    returnFocusIdRef.current = id;
+    setSelectedId(id);
+  }, []);
+
   const closeDrawer = useCallback(() => {
+    const returnId = returnFocusIdRef.current;
     setSelectedId(null);
+
+    window.requestAnimationFrame(() => {
+      if (returnId) {
+        focusElementBySelector(`[data-feedback-id="${returnId}"]`);
+      }
+    });
   }, []);
 
   const handleStatusChange = useCallback(
@@ -86,27 +119,33 @@ export function FeedbackInbox() {
     <>
       <FilterBar
         filters={filters}
-        resultCount={filteredItems.length}
+        resultCount={isLoading ? 0 : filteredItems.length}
         totalCount={items.length}
         onChange={updateFilters}
       />
 
-      <section className="flex flex-1 flex-col px-5 py-5 md:px-8">
+      <section
+        className="flex flex-1 flex-col px-5 py-5 md:px-8"
+        aria-labelledby="inbox-results-heading"
+      >
+        <h2 id="inbox-results-heading" className="sr-only">
+          Feedback results
+        </h2>
         <div className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface shadow-[var(--shadow-panel)]">
-          {filteredItems.length === 0 ? (
-            <div className="px-6 py-16 text-center">
-              <p className="text-sm font-semibold text-foreground">
-                No feedback matches these filters
-              </p>
-              <p className="mt-2 text-sm text-muted">
-                Clear a chip or broaden search to see more reports.
-              </p>
-            </div>
+          {isLoading ? (
+            <SkeletonTable />
+          ) : filteredItems.length === 0 ? (
+            <EmptyState
+              title="No feedback matches these filters"
+              description="Clear a chip or broaden search to see more playtest reports."
+              actionLabel="Clear filters"
+              onAction={clearFilters}
+            />
           ) : (
             <FeedbackTable
               items={filteredItems}
               selectedId={selectedId}
-              onSelect={setSelectedId}
+              onSelect={handleSelect}
             />
           )}
         </div>

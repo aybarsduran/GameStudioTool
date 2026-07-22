@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   platformLabels,
   severityLabels,
   statusLabels,
 } from "@/lib/filters";
+import { getFocusableElements } from "@/lib/focus";
 import { STATUSES, type FeedbackItem, type Status } from "@/lib/types";
 
 export const ASSIGNEES = [
@@ -29,6 +30,9 @@ export function DetailDrawer({
   onAssigneeChange,
 }: DetailDrawerProps) {
   const open = item !== null;
+  const titleId = useId();
+  const panelRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [displayItem, setDisplayItem] = useState<FeedbackItem | null>(item);
 
   useEffect(() => {
@@ -41,14 +45,43 @@ export function DetailDrawer({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    const frame = window.requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
+
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !panelRef.current) return;
+
+      const focusable = getFocusableElements(panelRef.current);
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
-    window.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keydown", onKeyDown);
     return () => {
+      window.cancelAnimationFrame(frame);
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keydown", onKeyDown);
     };
   }, [open, onClose]);
 
@@ -62,21 +95,19 @@ export function DetailDrawer({
       ].join(" ")}
       aria-hidden={!open}
     >
-      <button
-        type="button"
-        tabIndex={open ? 0 : -1}
-        aria-label="Close feedback details"
-        onClick={onClose}
+      <div
         className={[
           "absolute inset-0 bg-[rgba(18,22,28,0.32)] transition-opacity duration-200",
           open ? "opacity-100" : "opacity-0",
         ].join(" ")}
+        onClick={onClose}
       />
 
       <aside
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={active ? "feedback-drawer-title" : undefined}
+        aria-labelledby={active ? titleId : undefined}
         className={[
           "relative flex h-full w-full max-w-md flex-col border-l border-border bg-surface shadow-[-12px_0_32px_rgba(18,22,28,0.08)] transition-transform duration-200 ease-out",
           open ? "translate-x-0" : "translate-x-full",
@@ -90,13 +121,14 @@ export function DetailDrawer({
                   {active.id}
                 </p>
                 <h2
-                  id="feedback-drawer-title"
+                  id={titleId}
                   className="mt-1 text-lg font-semibold tracking-tight text-foreground"
                 >
                   {active.title}
                 </h2>
               </div>
               <button
+                ref={closeButtonRef}
                 type="button"
                 onClick={onClose}
                 className="rounded-[var(--radius-sm)] border border-border px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-surface-muted"

@@ -16,4 +16,5 @@ Open [http://localhost:3000](http://localhost:3000).
 - **Step 1 (done):** app shell — tokens, sidebar, Feedback Inbox placeholder
 - **Step 2 (done):** mock feedback data, dense table, URL-driven filters
 - **Step 3 (done):** detail drawer, status/assignee triage, toast feedback
-- Step 4+: a11y pass, stub pages, before/after case
+- **Step 4 (done):** skeleton loading, empty state, keyboard nav, focus trap
+- Step 5+: stub pages, before/after case

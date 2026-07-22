@@ -1,6 +1,11 @@
 "use client";
 
 import {
+  useCallback,
+  useRef,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
+import {
   formatAge,
   platformLabels,
   severityLabels,
@@ -19,10 +24,44 @@ export function FeedbackTable({
   selectedId,
   onSelect,
 }: FeedbackTableProps) {
+  const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
+
+  const focusRow = useCallback((id: string) => {
+    rowRefs.current.get(id)?.focus();
+  }, []);
+
+  const handleRowKeyDown = (
+    event: ReactKeyboardEvent<HTMLTableRowElement>,
+    index: number,
+    id: string,
+  ) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect(id);
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      const next = items[index + 1];
+      if (next) focusRow(next.id);
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      const previous = items[index - 1];
+      if (previous) focusRow(previous.id);
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full border-collapse text-left text-sm">
-        <caption className="sr-only">Playtest feedback inbox</caption>
+        <caption className="sr-only">
+          Playtest feedback inbox. Use arrow keys to move between rows, Enter
+          to open details.
+        </caption>
         <thead className="border-b border-border bg-surface-muted text-xs uppercase tracking-[0.06em] text-muted">
           <tr>
             <th scope="col" className="px-3 py-2.5 font-medium md:px-4">
@@ -49,21 +88,21 @@ export function FeedbackTable({
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => {
+          {items.map((item, index) => {
             const selected = item.id === selectedId;
 
             return (
               <tr
                 key={item.id}
+                ref={(node) => {
+                  if (node) rowRefs.current.set(item.id, node);
+                  else rowRefs.current.delete(item.id);
+                }}
+                data-feedback-id={item.id}
                 tabIndex={0}
                 aria-selected={selected}
                 onClick={() => onSelect(item.id)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    onSelect(item.id);
-                  }
-                }}
+                onKeyDown={(event) => handleRowKeyDown(event, index, item.id)}
                 className={[
                   "cursor-pointer border-b border-border last:border-b-0 transition-colors",
                   selected
