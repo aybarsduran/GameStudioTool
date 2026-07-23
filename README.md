@@ -1,47 +1,31 @@
 # Game Studio Tool — LiveOps Desk
 
-Dense LiveOps desk for build triage and playtest feedback. A Design Engineering portfolio case: audit a weak SaaS screen, then ship polished, accessible UI in Next.js + TypeScript.
+A dense LiveOps desk for playtest feedback triage: filterable inbox, detail drawer, build & patch context, and EN/TR UI — built as a Design Engineering portfolio case in Next.js and TypeScript.
 
-**Live demo:** _add your Vercel URL here after deploy_
-
-| Baseline (before) | Polished (after) |
+| Baseline | Polished |
 | --- | --- |
-| [/before](/before) | [/](/) |
+| [`/before`](/before) | [`/`](/) |
 
-## Case study
+## Overview
 
-### Problem
-Game teams triage playtest feedback in dense tables every day. A first-pass UI often ships with weak hierarchy, color-only status, cramped filters, and no keyboard path — fine for a prototype, not for daily use.
+Game teams review playtest reports in high-density tables every day. This project shows an audit-and-polish loop: start from a weak baseline UI, then ship a production-minded desk with clearer hierarchy, keyboard access, and consistent craft.
 
-### Audit (what was wrong on `/before`)
-- Flat typography — title, meta, and chrome compete at the same size
-- Severity communicated by color alone
-- Filters look interactive but do nothing; empty/loading states missing
-- No skip link, drawer, focus trap, or focus return
-- Uneven spacing and low-contrast secondary text
+### Features
 
-### After (what shipped)
-- Product shell with sidebar navigation (LiveOps, Builds, Patch Notes, Settings)
-- Dense feedback inbox with URL-driven search / status / severity / platform filters
-- Detail drawer for triage (status + assignee) with toast confirmation
-- Skeleton loading, empty state with clear-filters action
-- Keyboard row navigation, drawer focus trap, Esc + focus restore
-- EN / TR UI language switcher (persisted in `localStorage`), including localized mock feedback copy
-- Shared design tokens (Figtree + IBM Plex Mono, teal accent, AA-minded contrast)
-
-### Accessibility notes
-- Skip link to main content on desk routes
-- Status/severity always include text labels, not color alone
-- Filter chips expose `aria-pressed`
-- Drawer uses `role="dialog"`, `aria-modal`, labelled title, Tab cycle trap
-- Table caption documents keyboard usage for screen readers
+- Feedback inbox with search and status / severity / platform filters (URL-driven)
+- Detail drawer for status and assignee triage, with toast confirmation
+- Builds and Patch Notes context pages
+- Workspace settings persisted in `localStorage`
+- EN / TR language switcher, including localized mock feedback copy
+- Accessible patterns: skip link, focus trap, focus restore, text + color status labels
 
 ### Stack
-- Next.js (App Router) + React + TypeScript
-- Tailwind CSS v4
-- Mock fixtures only (no backend)
 
-## Run locally
+- Next.js (App Router), React, TypeScript
+- Tailwind CSS v4
+- Client-side mock data (no backend)
+
+## Getting started
 
 ```bash
 npm install
@@ -50,26 +34,15 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Production check:
-
 ```bash
 npm run build
 npm start
 ```
 
-## Deploy (Vercel)
+## Case study
 
-1. Push this repo to GitHub
-2. Import the project in [Vercel](https://vercel.com/new)
-3. Framework preset: **Next.js** (default). Build command `npm run build`, output detected automatically
-4. Paste the deployment URL into the **Live demo** line above
+**Problem.** First-pass triage UIs often ship with flat typography, color-only severity, dead filters, and no keyboard path — usable as a prototype, not for daily ops.
 
+**Baseline (`/before`).** Cramped layout, weak hierarchy, non-functional filters, and no focus management.
 
-## Build steps completed
-
-1. App shell — tokens, sidebar, page chrome
-2. Mock feedback data, dense table, URL-driven filters
-3. Detail drawer, status/assignee triage, toasts
-4. Skeleton, empty state, keyboard nav, focus trap
-5. Builds, Patch Notes, Settings stub pages
-6. `/before` baseline + case write-up + deploy-ready build
+**After.** Product shell, dense readable table, working filters, triage drawer, loading/empty states, EN/TR, and accessibility pass (skip link, `aria-pressed` chips, dialog focus trap, labeled severity/status).
